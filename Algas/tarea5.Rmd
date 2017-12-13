@@ -1,0 +1,63 @@
+---
+title: "Tarea5"
+author: "Abraham Nieto 51556"
+date: "19 de octubre de 2017"
+output: html_document
+---
+Si usamos todas las variables de algas..
+
+```{r}
+source('utils.R')
+source('metadata.R')
+source('00-load.R')
+source('02-clean.R')
+eda(colnames(algas),algas)
+
+```
+
+y si usamos solo una lista...
+
+```{r}
+eda(colnames(algas)[1:6],algas)
+```
+Funcion eda...
+```{r}
+
+eda<-function(vars,d){
+  nums <- sapply(d[vars], is.numeric)
+  num<-colnames(d[vars][,nums])
+  
+  chars <- sapply(d[vars], is.character)
+  char<-colnames(d[vars][,chars])
+  
+  if(length(num)!=0){
+  pairs(~.,data=d[vars][,nums],main = "Variables numericas")
+  }
+  
+  if(length(char)!=0){
+  k<-structable(d[vars][,chars])
+  pairs(k,highlighting=2,main = "Variables categoricas",diag_panel=pairs_diagonal_mosaic,mosaic_diag_panel_args=list(fill=grey.colors))
+  }
+ 
+  if(length(num)!=0 & length(char)!=0) {
+  for (i in 1:length(vars)){
+    
+   for(j in 1:length(vars)){
+      
+      if(i!=j){
+        md<-select(d[vars],vars[i],vars[j])
+        if(colnames(md[1]) %in% num & colnames(md[2]) %in% char){
+          print(ggplot(data=md,aes(y=md[1],x=md[2]))+geom_boxplot()+scale_x_discrete()+
+            scale_y_continuous()+xlab(colnames(md[1]))+ylab(colnames(md[2])))
+          
+        }
+ 
+      }
+    }
+  }
+    
+  }
+  
+}
+```
+

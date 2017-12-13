@@ -1,0 +1,865 @@
+---
+title: "Examen1"
+author: "Abraham Nieto - Ricardo Lastra"
+date: "4 de noviembre de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+local <- getwd()
+setwd(local)
+```
+
+&nbsp;
+
+
+```{r echo=T, warning=F, error=F, message=F}
+
+source("run.R")
+
+```
+&nbsp;
+
+**NOTA:** Las siguientes preguntas se contestan removiendo los `NA's` de los meses de `OCTUBRE`, `NOVIEMBRE` y `DICIEMBRE` en el ano 2017.
+
+&nbsp;
+
+### Preguntas:
+
+
+&nbsp;
+
+1.¿De qué años tenemos información?
+
+```{r echo=T, warning=F, error=F, message=F}
+library(tidyverse)
+library(knitr)
+#Usamos Dplyr y Kable para filtrar y mostrar datos y los años con incidencias son los siguientes:
+crimet %>%
+  group_by(ano) %>%
+  select(ano) %>%
+  summarise() %>%
+  kable()
+```
+
+&nbsp;
+
+2.¿Cuántas observaciones tenemos por año?
+
+```{r echo=T, warning=F, error=F, message=F}
+#El total de observaciones acumuladas por ano es el siguiente:
+crimet %>%
+  group_by(ano) %>%
+  select(ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  arrange(total_observaciones)  %>%
+  kable()
+```
+
+&nbsp;
+
+3. ¿Cuántas observaciones tenemos por entidad?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Para mostrar la sumatoria, descartamos los NA para obtener el total de observaciones:
+crimet %>%
+  group_by(entidad) %>%
+  select(entidad,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  arrange(total_observaciones)  %>%
+  kable()
+```
+
+&nbsp;
+
+4.¿Cuántas observaciones tenemos por entidad/año?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Igual que en la pregunta anterior, descartamos los NA para obtener la suma total por entidad/ano:
+crimet %>%
+  group_by(entidad, ano) %>%
+  select(entidad,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE))   %>%
+  kable()
+```
+
+&nbsp;
+
+5.¿Cuántos tipos diferentes de incidencia delictiva hay?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Contamos la modalidad  como incidencia delictiva segun las preguntas del Slack:
+crimet %>%
+  group_by(modalidad) %>%
+  summarise() %>%
+  count()
+```
+
+
+&nbsp;
+
+6.¿Cuentas con observaciones de todas las entidades del país para todos los años/meses?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Validamos ordenando con "arrange" de menor a mayor y visualizamos en la tabla que los primeros 3 registros no tienen observacion:
+crimet %>%
+  group_by(ano,mes) %>%
+  select(ano,mes,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  arrange(total_observaciones) %>%
+  head(10) %>%
+  kable()
+```
+
+&nbsp;
+
+
+7.¿Cuál es la modalidad de incidencia delictiva que más ocurre en el país?
+
+```{r echo=T, warning=F, error=F, message=F}
+#La modalidad que mas ocurre es el "ROBO COMUN" con 12,338,668 observaciones acumuladas:
+crimet %>%
+  group_by(modalidad) %>%
+  select(modalidad,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  arrange(desc(total_observaciones))
+```
+
+
+&nbsp;
+
+
+8.¿Cuál es la modalidad de incidencia delictiva que más ocurre en el país por año?
+
+
+```{r echo=T, warning=F, error=F, message=F}
+#Obtenemos las incidencias que mas ocurren en el pais por ano, de la siguiente manera:
+crimet %>%
+  group_by(ano,modalidad) %>%
+  select(ano,modalidad,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  top_n(1, total_observaciones) %>%
+  kable()
+```
+
+&nbsp;
+
+
+9.¿Cuál es la modalidad de incidencia delictiva que más ocurre en el país por sexenio?
+
+
+```{r echo=T, warning=F, error=F, message=F}
+#La modalidad que mas ocurre por sexenio es la siguiente:
+crimet %>%
+  mutate(sexenio = ifelse(ano %in% c(1997,1998,1999,2000),"Zedillo",ifelse(ano %in% c(2001,2002,2003,2004,2005,2006),"Fox",ifelse(ano %in% c(2007,2008,2009,2010,2011,2012),"Calderon",ifelse(ano %in% c(2013,2014,2015,2016,2017),"Pena","Hijole"))))) %>%
+  group_by(sexenio,modalidad) %>%
+  select(sexenio,modalidad,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  filter(total_observaciones==max(total_observaciones)) %>%
+  kable()
+```
+
+
+&nbsp;
+
+10.¿Cuál es la incidencia delictiva que más ocurre por entidad en el país?
+
+
+```{r echo=T, warning=F, error=F, message=F}
+#La modalidad que mas ocurre, de forma ordenada, por entidad es la siguiente:
+crimet %>%
+  group_by(entidad,modalidad) %>%
+  select(entidad,modalidad,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  filter(total_observaciones==max(total_observaciones)) %>%
+  arrange(desc(total_observaciones)) %>%
+  kable()
+```
+
+
+&nbsp;
+
+11.¿Cuál es la incidencia delictiva que más ocurre por entidad por año?
+
+
+```{r echo=T, warning=F, error=F, message=F}
+#La modalidad que mas ocurre, de forma ordenada, por entidad  por ano es la siguiente:
+crimet %>%
+  group_by(entidad,ano,modalidad) %>%
+  select(entidad,ano,modalidad,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  filter(total_observaciones==max(total_observaciones)) %>%
+  kable()
+```
+
+
+&nbsp;
+
+12.¿Cuál es la entidad con mayor incidencia delictiva históricamente?
+
+```{r echo=T, warning=F, error=F, message=F}
+#La entidad con mayor incidencia delictiva historicamente es:
+crimet %>%
+  group_by(entidad,modalidad) %>%
+  select(entidad,modalidad,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  filter(total_observaciones==max(total_observaciones)) %>%
+  arrange(desc(total_observaciones)) %>%
+  kable()
+```
+
+&nbsp;
+
+13.¿Cuál es la entidad con menor incidencia delictiva por año?
+
+```{r echo=T, warning=F, error=F, message=F}
+#La entidad con menor incidencia delictiva por ano es:
+crimet %>%
+  group_by(ano,entidad) %>%
+  select(ano,entidad,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  filter(total_observaciones==min(total_observaciones)) %>%
+  arrange(total_observaciones) %>%
+  kable()
+```
+
+&nbsp;
+
+14.¿Cuántas observaciones hubo por año para cada tipo de incidencia delictiva en el país?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Para cada tipo de incidencia delictiva por ano en el pais existieron las siguientes observaciones:
+crimet %>%
+  group_by(tipo,ano) %>%
+  select(tipo,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  kable()
+```
+
+&nbsp;
+
+15.¿Cuántas observaciones hubo por año para cada tipo de incidencia delictiva por entidad?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Para cada tipo de incidencia delictiva por ano por entidad existieron las siguientes observaciones:
+crimet %>%
+  group_by(ano,entidad,tipo) %>%
+  select(ano,entidad,tipo,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  arrange(ano,entidad) %>%
+  kable()
+```
+
+
+&nbsp;
+
+16.¿Cuántas observaciones tienen asignaciones sin sentido entre modalidad-tipo? Por ejemplo: si el tipo es violación la modalidad debería ser delitos sexuales (violación)
+
+```{r echo=T, warning=F, error=F, message=F}
+#Las observaciones que tienen asignaciones sin sentido entre la modalidad-tipo, segun nuestro criterio son "OTROS DELITOS" - "RESTO DE LOS DELITOS OTROS" ya que es ambigua la relacion:
+crimet %>%
+  group_by(modalidad,tipo) %>%
+  select(modalidad, tipo,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  arrange(desc(total_observaciones)) %>%
+  kable()
+```
+
+&nbsp;
+
+17.¿Existen entidades que no tengan registro de alguno de los tipos de incidencia delictiva?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Las entidades que no tienen registro por tipo de incidencia son:
+crimet %>%
+  group_by(entidad,tipo) %>%
+  select(entidad, tipo,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  arrange(total_observaciones) %>%
+  head(3) %>%
+  kable()
+```
+
+&nbsp;
+
+18.¿Cuáles son las entidades con menor incidencia de cada tipo existente?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Las entidades con menor incidencia de cada tipo son:
+crimet %>%
+  group_by(tipo,entidad) %>%
+  select(tipo, entidad,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  filter(total_observaciones==min(total_observaciones)) %>%
+  arrange(total_observaciones) %>%
+  kable()
+```
+
+&nbsp;
+
+19.¿Cuáles son las entidades con mayor incidencia de cada tipo existente?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Las entidades con mayor incidencia de cada tipo existente son:
+crimet %>%
+  group_by(tipo,entidad) %>%
+  select(tipo, entidad,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  filter(total_observaciones==max(total_observaciones)) %>%
+  arrange(desc(total_observaciones)) %>%
+  kable()
+```
+
+&nbsp;
+
+20.¿Cuáles son las entidades que han aumentado al menos un 10% su incidencia en algún tipo de delito específico?
+```{r echo=T, warning=F, error=F, message=F}
+#Las entidades que han aumentado al menos un 10% su incidencia en algun tipo de delito especifico son:
+#Nota. Acotamos a 20 observaciones debido a lo extensa de la tabla.
+crimet %>%
+  group_by(entidad,tipo,ano) %>%
+  select(entidad,tipo,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  filter(porcentaje>10) %>%
+  arrange(desc(porcentaje)) %>%
+  head(20) %>%
+  kable()
+```
+
+&nbsp;
+
+21.¿Cuáles son las entidades que han disminuido al menos un 10% su incidencia en algún tipo de delito específico en los últimos 10 años?
+```{r echo=T, warning=F, error=F, message=F}
+#Las entidades que han  disminuido al menos un 10% su incidencia en algun tipo de delito son:
+crimet %>%
+  group_by(entidad,tipo,ano) %>%
+  select(entidad,tipo,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  filter(ano > "2007" & porcentaje < -10) %>%
+  kable()
+```
+
+&nbsp;
+
+22.¿Qué proporción tiene cada subtipo de incidencia delictiva por entidad/año?¿Han cambiado con el tiempo?¿Cuáles han aumentado, cuáles han disminuido?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Para esta pregunta además de mostrar la proporción,el criterio para saber si han aumentado o disminuido con los años lo vamos a definir con la pendiente de la tendencia de cada subtipo por entidad, ya que una pendiente positiva implica un crecimiento y la negativa una disminución las pendientes cercanas a cero no han tenido movimientos, se muestra la tabla en orden de crecimieno filtrado de subtipos:
+#Nota. Acotamos la impresion de la tabla a cambios mayores a .01 y menores a -.01.
+crimet %>%
+  group_by(entidad,ano,subtipo) %>%
+  select(subtipo,entidad,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  group_by(entidad,ano) %>%
+  mutate(proporcion = total_observaciones/sum(total_observaciones)) %>%
+  group_by(entidad,subtipo) %>% 
+  mutate(cambio=lm(proporcion~ano)$coefficients[2]) %>% 
+  filter(cambio >= .01 | cambio <= -.01) %>%
+  kable()
+```
+
+&nbsp;
+
+
+23.¿Existen diferencias en el comportamiento de incidencias delicitivas en el norte, centro y sur del páis? -define qué entidades forman parte de norte, centro y sur-
+
+```{r echo=T, warning=F, error=F, message=F}
+#Definimos los estados de la siguiente manera(ver codigo), y las diferencias principales son las siguientes:
+# 1. Existe un alza en las incidencias delictivas en el Centro y Norte del pais hasta el ano pasado.
+# 2. El SUR del pais desde el 2010 no ha tenido una tasa de incremento de los incidentes delictivos aunque ha sido la zona con "mayores brincos" en las tasas de incidentes(2006 y 2007).
+# 3. La zona CENTRO es la que mayor tasa de crecimiento ha tenido en los ultimos años acumulando una diferencia de mas de 150 mil de incidencias desde 1999 hasta el ano 2006.
+crimet %>%
+  mutate(region = ifelse(entidad %in% c('CAMPECHE',	'CHIAPAS',	'OAXACA',	'QUINTANA ROO',	'TABASCO',	'VERACRUZ',	'YUCATAN'),"SUR",ifelse(entidad %in% c('BAJA CALIFORNIA',	'BAJA CALIFORNIA SUR',	'CHIHUAHUA',	'COAHUILA',	'JALISCO',	'NAYARIT',	'NUEVO LEON',	'SINALOA',	'SONORA',	'TAMAULIPAS'),"NORTE",ifelse(entidad %in% c('AGUASCALIENTES',	'CIUDAD DE MEXICO',	'COLIMA',	'DURANGO',	'GUANAJUATO',	'GUERRERO',	'HIDALGO',	'MEXICO',	'MICHOACAN',	'MORELOS',	'PUEBLA',	'QUERETARO',	'SAN LUIS POTOSI',	'TLAXCALA',	'ZACATECAS'),"CENTRO","EDO NO EXISTE")))) %>%
+  group_by(region,ano) %>%
+  select(region,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  filter(porcentaje>0) %>%
+  kable()
+```
+
+&nbsp;
+
+24.Hay evidencia que sugiera que en los años 2006 a 2012 hubo un aumento en incidencia delictiva en el país con arma de fuego o violencia?¿de cuánto fue el aumento?
+```{r echo=T, warning=F, error=F, message=F}
+#En los delitos CON ARMA DE FUEGO si hubo un incremento en la tasa en todo ese sexenio tal como se muestra en la siguiente tabla tanto en # de observaciones como en tasa de crecimiento. Sin embargo en los delitos CON VIOLENCIA hubo un decremento en todo el pais.
+crimet %>%
+  group_by(subtipo,ano) %>%
+  select(subtipo,ano,valu) %>%
+  filter(subtipo== c("CON ARMA DE FUEGO", "CON VIOLENCIA")) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  filter(ano>2005 & ano<2013 ) %>%
+  kable()
+```
+
+&nbsp;
+
+25.Si hicieramos la pregunta anterior pero por región del país - norte, centro, sur- ¿cuál sería la región con mayor aumento?¿de cuánto es ese aumento?
+
+```{r echo=T, warning=F, error=F, message=F}
+#La region con mayor aumento seria la REGION SUR especialmente en el ano 2007 y 2008. El incremento es del 157% respecto al año anterior!
+crimet %>%
+  mutate(region = ifelse(entidad %in% c('CAMPECHE',	'CHIAPAS',	'OAXACA',	'QUINTANA ROO',	'TABASCO',	'VERACRUZ',	'YUCATAN'),"SUR",ifelse(entidad %in% c('BAJA CALIFORNIA',	'BAJA CALIFORNIA SUR',	'CHIHUAHUA',	'COAHUILA',	'JALISCO',	'NAYARIT',	'NUEVO LEON',	'SINALOA',	'SONORA',	'TAMAULIPAS'),"NORTE",ifelse(entidad %in% c('AGUASCALIENTES',	'CIUDAD DE MEXICO',	'COLIMA',	'DURANGO',	'GUANAJUATO',	'GUERRERO',	'HIDALGO',	'MEXICO',	'MICHOACAN',	'MORELOS',	'PUEBLA',	'QUERETARO',	'SAN LUIS POTOSI',	'TLAXCALA',	'ZACATECAS'),"CENTRO","EDO NO EXISTE")))) %>%
+  group_by(subtipo,region,ano) %>%
+  select(subtipo,region,ano,valu) %>%
+  filter(subtipo== c("CON ARMA DE FUEGO", "CON VIOLENCIA")) %>%
+  filter(ano>2005 & ano<2013 ) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  filter(porcentaje>50) %>%
+  kable()
+```
+
+&nbsp;
+
+26.¿Cuál es la modalidad de incidencia delictiva que ha aumentado com mayor "rapidez" en el país?
+
+```{r echo=T, warning=F, error=F, message=F}
+#La modalidad que mas rapido aumento en el pais fue "PRIV. DE LA LIBERTAD SECUESTRO"
+crimet %>%
+  group_by(modalidad,ano) %>%
+  select(modalidad,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  select(modalidad,porcentaje) %>%
+  arrange(desc(porcentaje)) %>%
+  head(1) %>%
+  kable()
+```
+
+&nbsp;
+
+27.¿Cuál es el tipo de incidencia delictiva que ha aumentado com mayor "rapidez" en el país?
+
+```{r echo=T, warning=F, error=F, message=F}
+#El tipo de incidencias que mas rapido aumento en el pais fue "EXTORSION"
+crimet %>%
+  group_by(tipo,ano) %>%
+  select(tipo,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  select(tipo,porcentaje) %>%
+  arrange(desc(porcentaje)) %>%
+  head(1) %>%
+  kable()
+```
+
+&nbsp;
+
+28.¿Cuál es el subtipo de incidencia delictiva que ha aumentado com mayor "rapidez" en el país?
+
+```{r echo=T, warning=F, error=F, message=F}
+#El subtipo de incidencias que mas rapido aumento en el pais fue "A CASA DE CAMBIO"
+crimet %>%
+  group_by(subtipo,ano) %>%
+  select(subtipo,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  select(subtipo,porcentaje) %>%
+  arrange(desc(porcentaje)) %>%
+  head(1) %>%
+  kable()
+```
+
+&nbsp;
+
+29.¿Cuál es la modalidad de incidencia delictiva que ha aumentado com mayor "rapidez" por entidad?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Las modalidades de incidencias delictivas por entidad que han aumentado con mayor rapidez son:
+crimet %>%
+  group_by(entidad,modalidad,ano) %>%
+  select(entidad,modalidad,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  group_by(entidad) %>%
+  filter(!is.na(porcentaje)) %>%
+  top_n(1, porcentaje) %>%
+  kable()
+```
+
+&nbsp;
+
+30.¿Cuál es el tipo de incidencia delictiva que ha aumentado com mayor "rapidez" por entidad?
+
+```{r echo=T, warning=F, error=F, message=F}
+#La incidencia que ha aumentado mas rapido en cada entidad es la siguiente:
+crimet %>%
+  group_by(entidad,tipo,ano) %>%
+  select(entidad,tipo,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  group_by(entidad) %>%
+  filter(!is.na(porcentaje)) %>%
+  top_n(1, porcentaje) %>%
+  kable()
+```
+
+
+&nbsp;
+
+31.¿Cuál es el subtipo de incidencia delictiva que ha aumentado com mayor "rapidez" por entidad?
+
+```{r echo=T, warning=F, error=F, message=F}
+#El subtipo de incidencia que mas rapido ha aumentado en cada entidad es: 
+crimet %>%
+  group_by(entidad,subtipo,ano) %>%
+  select(entidad,subtipo,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  group_by(entidad) %>%
+  filter(!is.na(porcentaje)) %>%
+  top_n(1, porcentaje) %>%
+  kable()
+```
+
+&nbsp;
+
+32.¿Cuál es la modalidad de incidencia delictiva que ha disminuido com mayor "rapidez" en el país?
+
+```{r echo=T, warning=F, error=F, message=F}
+#La modalidad que ha disminuido con mayor rapidez es la siguiente:
+crimet %>%
+  group_by(modalidad,ano) %>%
+  select(modalidad,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  select(modalidad,porcentaje) %>%
+  filter(!is.na(porcentaje)) %>%
+  arrange(desc(porcentaje)) %>%
+  tail(1) %>%
+  kable()
+```
+
+33.¿Cuál es el tipo de incidencia delictiva que ha disminuido com mayor "rapidez" en el país?
+
+```{r echo=T, warning=F, error=F, message=F}
+#El tipo de incidencia que mas rapido ha disminuido en el pais es:
+crimet %>%
+  group_by(tipo,ano) %>%
+  select(tipo,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  select(tipo,porcentaje) %>%
+  filter(!is.na(porcentaje)) %>%
+  arrange(desc(porcentaje)) %>%
+  tail(1) %>%
+  kable()
+```
+
+&nbsp;
+
+34.¿Cuál es el subtipo de incidencia delictiva que ha disminuido com mayor "rapidez" en el país?
+
+```{r echo=T, warning=F, error=F, message=F}
+#El subtipo de incidencia que mas rapido ha disminuido en el pais es:
+crimet %>%
+  group_by(subtipo,ano) %>%
+  select(subtipo,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  select(subtipo,porcentaje) %>%
+  filter(!is.na(porcentaje)) %>%
+  arrange(desc(porcentaje)) %>%
+  tail(1) %>%
+  kable()
+```
+
+&nbsp;
+
+35.¿Cuál es la modalidad de incidencia delictiva que ha disminuido com mayor "rapidez" por entidad?
+
+```{r echo=T, warning=F, error=F, message=F}
+#La modalidad que ha disminuido con mayor rapidez  por entidad es:
+crimet %>%
+  group_by(entidad,modalidad,ano) %>%
+  select(entidad,modalidad,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  group_by(entidad) %>%
+  select(entidad,modalidad,porcentaje) %>%
+  filter(!is.na(porcentaje)) %>%
+  slice(which.min(porcentaje)) %>%
+  kable()
+```
+
+&nbsp;
+
+36.¿Cuál es el tipo de incidencia delictiva que ha disminuido com mayor "rapidez" por entidad?
+
+```{r echo=T, warning=F, error=F, message=F}
+#El tipo de incidencia delectiva que ha disminuido con mayor rapidez por entidad es:
+crimet %>%
+  group_by(entidad,tipo,ano) %>%
+  select(entidad,tipo,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  group_by(entidad) %>%
+  select(entidad,tipo,porcentaje) %>%
+  filter(!is.na(porcentaje)) %>%
+  slice(which.min(porcentaje)) %>%
+  kable()
+```
+
+&nbsp;
+
+37.¿Cuál es el subtipo de incidencia delictiva que ha disminuido com mayor "rapidez" por entidad?
+
+```{r echo=T, warning=F, error=F, message=F}
+#El subtipo de incidencia delectiva que ha disminuido con mayor rapidez por entidad es:
+crimet %>%
+  group_by(entidad,subtipo,ano) %>%
+  select(entidad,subtipo,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  group_by(entidad) %>%
+  select(entidad,subtipo,porcentaje) %>%
+  filter(!is.na(porcentaje)) %>%
+  slice(which.min(porcentaje)) %>%
+  kable()
+```
+
+&nbsp;
+
+38.¿Cuál consideras que es la entidad donde es más probable que ocurra una incidencia delictiva?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Segun el GEDA la entidad "MEXICO" tiene la mayor proporcion de crimenes cometidos respecto a los demas estados, por lo que seria mas probable que en Estado de Mexico ocurriera alguna incidencia.
+#Tambien lo podemos comprobar mediante la tendencia de cambio con la regresion, que nos muestra que hay una pendiente positiva para la entidad MEXICO:
+crimet %>%
+  group_by(entidad,ano) %>%
+  select(entidad,ano,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(proporcion = total_observaciones/sum(total_observaciones)) %>%
+  group_by(entidad) %>% 
+  mutate(cambio=lm(proporcion~ano)$coefficients[2]) %>%
+  arrange(desc(total_observaciones)) %>%
+  head(20) %>%
+  kable()
+```
+
+&nbsp;
+
+39.¿Cuál consideras que es la entidad donde es más probable que secuestren en noviembre?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Despues de revisar las entidades con mayor numero de incidentes "SECUESTRO", revisamos tambien sus tasas de crecimiento, y observamos que en la CIUDAD DE MEXICO, es donde es mas probable que pueda ocurrir algun secuestro en el mes de NOVIEMBRE, lo podemos ver de la siguiente manera:
+crimet %>%
+  group_by(entidad,tipo,mes) %>%
+  select(entidad,tipo,mes,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  group_by(entidad,tipo,mes) %>%
+  filter(!is.na(porcentaje)) %>%
+  filter(tipo == "SECUESTRO" & mes == "NOVIEMBRE") %>%
+  arrange(desc(total_observaciones,porcentaje)) %>%
+  head(1) %>%
+  kable()
+```
+
+&nbsp;
+
+40.¿Cuál consideras que es la entidad donde es más probable que ocurra un homicidio culposo?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Consideramos que la entidad donde es mas probable que ocurra un "HOMICIDIO CULPOSO" es en JALISCO, ya que es la segunda entidad con mayor numero de observaciones y con la tasa de crecimiento de este tipo de incidencia "mas" alta. Considerando el volumen de la poblacion, es mas probable que ocurra un delito de este tipo en esa entidad.
+crimet %>%
+  group_by(modalidad,tipo,entidad) %>%
+  select(entidad,modalidad,tipo,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  group_by(modalidad,tipo,entidad) %>%
+  filter(!is.na(porcentaje)) %>%
+  filter(modalidad == "HOMICIDIOS" & tipo == "CULPOSOS") %>%
+  arrange(desc(total_observaciones,porcentaje)) %>%
+  head(5) %>%
+  kable()
+```
+
+&nbsp;
+
+41.¿Cuál consideras que es la entidad más "segura" para vivir?¿A dónde nos tenemos que mudar?
+
+```{r echo=T, warning=F, error=F, message=F}
+#Consideramos que la entidad "mas" segura para vivir es campeche, no solo por su baja frecuencia en cualquier tipo de incidencias, sino tambien por que las tasas para delitos graves son bajas, tambien la mayor frecuencia es "ROBO COMUN" que NO es tan malo, dejando las LESIONES y OTROS DELITOS como las incidencias mas "graves", comparando con otras entidades podriamos decir que es la mas segura para vivir.
+crimet %>%
+  group_by(entidad,modalidad) %>%
+  select(entidad,modalidad,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  mutate(porcentaje = ifelse(lag(total_observaciones,1)!=0,(((total_observaciones/lag(total_observaciones,1))-1)*100),0)) %>%
+  group_by(entidad,modalidad) %>%
+  filter(!is.na(porcentaje)) %>%
+  filter(entidad == "CAMPECHE") %>%
+  arrange(desc(total_observaciones,porcentaje)) %>%
+  kable()
+```
+
+&nbsp;
+
+42.¿Qué propoción tienen las incidencias delictivas correspondientes a arma de fuego por entidad?
+
+```{r echo=T, warning=F, error=F, message=F}
+#La proporcion de incidencias por ARMA DE FUEGO por entidad son las siguientes:
+crimet %>%
+  group_by(entidad,subtipo) %>%
+  select(subtipo,entidad,valu) %>%
+  summarise(total_observaciones = sum(valu,NA, na.rm = TRUE)) %>%
+  group_by(entidad) %>%
+  mutate(proporcion = total_observaciones/sum(total_observaciones)) %>%
+  filter(subtipo == "CON ARMA DE FUEGO") %>%
+  filter(!is.na(proporcion)) %>%
+  arrange(desc(total_observaciones,proporcion)) %>%
+  kable()
+```
+
+&nbsp;
+
+43.Genera una visualización donde puedas ver la concentración de incidentes delictivos por entidad del año 2016 (mapa).
+
+```{r echo=T, warning=F, error=F, message=F}
+library(rgdal)
+library(leaflet)
+#Concentracion  de incidentes del 2016, subset especial para mapas.
+crime2 <- crimet %>%
+  mutate(entidad=replace(entidad, entidad=="CIUDAD DE MEXICO", "Distrito Federal")) %>%
+  group_by(entidad) %>%
+  select(ano,entidad,valu) %>%
+  filter(ano == 2016) %>% 
+  summarise(total = sum(valu)) %>%
+  arrange(entidad)
+
+#Descargamos plantilla de Mexico por estados
+tmp <- tempdir()
+url <- "http://personal.tcu.edu/kylewalker/data/mexico.zip"
+file <- basename(url)
+download.file(url, file)
+unzip(file, exdir = tmp)
+mexico <- readOGR(dsn = tmp, layer = "mexico", encoding = "UTF-8")
+
+pal <- colorQuantile("YlOrRd", NULL, n = 5)
+#Generamos variable para popUP
+state_popup <- paste0("<strong>Entidad: </strong>", 
+                      crime2$entidad, 
+                      "<br><strong>Total de crimenes 2016: </strong>", 
+                      crime2$total) %>% lapply(htmltools::HTML)
+#Generamos mapa con la concentracion de incidencias por estado (mas coloreada) con su popUP de datos
+leaflet(mexico) %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addPolygons(fillColor = ~pal(crime2$total), 
+              fillOpacity = 0.8,
+              color = "#666", 
+              weight = 1,
+              dashArray = "3",
+              highlight = highlightOptions(
+                bringToFront = TRUE),
+              label = state_popup,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")
+              )
+```
+
+&nbsp;
+
+44.Genera una visualización donde puedas ver la concentración de incidencias delictivas por tipo/entidad del año 2016 (mapa).
+
+```{r echo=T, warning=F, error=F, message=F}
+#Concentracion  de incidentes por tipo del 2016, subset especial para mapas.
+crime2 <- crimet %>%
+  mutate(entidad=replace(entidad, entidad=="CIUDAD DE MEXICO", "Distrito Federal")) %>%
+  group_by(entidad,tipo) %>%
+  select(ano,entidad,tipo,valu) %>%
+  filter(ano == 2016) %>% 
+  summarise(total = sum(valu,NA, na.rm = TRUE)) %>%
+  group_by(entidad) %>%
+  top_n(1, total)
+
+pal <- colorQuantile("YlOrRd", NULL, n = 5)
+#Generamos variable para popUP
+state_popup <- paste0("<strong>Entidad: </strong>", 
+                      crime2$entidad,
+                      "<br><strong>Tipo incidencia: </strong>", 
+                      crime2$tipo,
+                      "<br><strong>Total de crimenes 2016: </strong>", 
+                      crime2$total) %>% lapply(htmltools::HTML)
+#Generamos mapa con la concentracion de incidencias por estado (mas coloreada) con su popUP de datos
+leaflet(mexico) %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addPolygons(fillColor = ~pal(crime2$total), 
+              fillOpacity = 0.8,
+              color = "#666", 
+              weight = 1,
+              dashArray = "3",
+              highlight = highlightOptions(
+                bringToFront = TRUE),
+              label = state_popup,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")
+              )
+```
+
+
+&nbsp;
+
+45.Genera una visualización donde puedas ver la concentración de incidencias delictivas por subtipo/entidad del año 2016 (mapa)
+
+```{r echo=T, warning=F, error=F, message=F}
+#Concentracion  de incidentes por subtipo del 2016, subset especial para mapas.
+crime2 <- crimet %>%
+  mutate(entidad=replace(entidad, entidad=="CIUDAD DE MEXICO", "Distrito Federal")) %>%
+  group_by(entidad,subtipo) %>%
+  select(ano,entidad,subtipo,valu) %>%
+  filter(ano == 2016) %>% 
+  summarise(total = sum(valu,NA, na.rm = TRUE)) %>%
+  group_by(entidad) %>%
+  top_n(1, total)
+
+pal <- colorQuantile("YlOrRd", NULL, n = 5)
+#Generamos variable para popUP
+state_popup <- paste0("<strong>Entidad: </strong>", 
+                      crime2$entidad,
+                      "<br><strong>Subtipo incidencia: </strong>", 
+                      crime2$subtipo,
+                      "<br><strong>Total de crimenes 2016: </strong>", 
+                      crime2$total) %>% lapply(htmltools::HTML)
+#Generamos mapa con la concentracion de incidencias por estado (mas coloreada) con su popUP de datos
+leaflet(mexico) %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addPolygons(fillColor = ~pal(crime2$total), 
+              fillOpacity = 0.8,
+              color = "#666", 
+              weight = 1,
+              dashArray = "3",
+              highlight = highlightOptions(
+                bringToFront = TRUE),
+              label = state_popup,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")
+              )
+```
+
+&nbsp;
+
+46.¿Cómo sugieres entregar este análisis -producto de datos- de tal manera que una persona del gobierno federal pueda obtener políticas de seguridad de acuerdo a la evidencia en sucesos registrados? Toma en cuenta que esta persona quisiera pasar cada mes los datos actualizados de los datos que le envian las entidades del país.
+
+    La mejor forma sería tener un repositorio o DWH donde se pueda concentrar la información de los distintos estados para que al final la visualización que construimos se alimente de este repositorio así como tambien brindar un dashboard para mostrar detalle de la información a traves de mapas, que muestren las zonas donde hay incremento de incidencias, donde se mantienen las tasas y tambien donde disminuye, en concreto informacion creativa que permita un analisis rapido y oportuno.
+
+&nbsp;
+
+47.¿Crees que puedes hacer un modelo de predicción de incidencia delictiva por estado con estos datos -lo que predices es el número de incidencias delictivas-?¿Por qué? En caso afirmativo, ¿qué modelos de ML ocuparías?¿Cada cuándo realizarías una nueva predicción?¿Cómo implementarías el pipeline completo desde adquisición de datos hasta brindarle a tu cliente la predicción por entidad?
+
+    Sí es posible, aunque tenemos pocas variables  y sería deseable tener más, tenemos una profundidad histórica de más de 20 años lo que nos puede ayudar a hacer una partición del dataframe para entrenar con ciertos años y validar con los más recientes, el modelo de ML que aplicaríamos podrían ser 2, una regresión lineal ó un knn como lo que hicimos en el ejercicio, pero en este caso en vez de usar una media o promedio de los vecinos cercanos quizás usariamos más vecinos para hacer la predicción con una regresión o serie de tiempo de esos datos, pero dado que la mayoria de las variables son categóricas excepto el año usaríamos knn con distancias de jaccard o hamming en vez de la euclideana.
+    La predicción la haríamos cada mes, para el mes siguiente, ya que la información maneja esta granularidad. El pipeline lo hariamos primero creando un repositorio donde se descarguen  los datos y se identifiquen por versión (puede ser que la base la actualicen incluso meses que ya han pasado, como "inputs")  tal vez pensar en un DWH  que contenga , además de los datos, una tabla o base donde se pueda guardar el output o predicción de delitos,con el modelo de Ml que creemos obvio con una tabla que pasemos por nuestro pipeline de limpieza, para el mes siguiente y con ambas tablas crear un dashboard o visualisación que muestre los lugares donde puedan asignar seguridad dependiendo del pronóstico.
+  
+
+&nbsp;
+

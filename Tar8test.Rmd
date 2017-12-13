@@ -1,0 +1,85 @@
+---
+title: "Tar8test"
+author: "Abraham Nieto 51556"
+date: "18 de noviembre de 2017"
+output: html_document
+---
+```{r}
+library(plyr)
+library(dplyr)
+library(ggplot2)
+source('utils.R')
+# Loading
+data(mtcars)#cargamos mtcars
+```
+
+**Tarea 8/ejercicio 2**
+
+Implementa el método correlation_filtering() en el archivo utils.R
+Implementa el método correlation_filtering() en el archivo utils.py
+Ocupa el data set de mtcars para probar tu método
+
+```{r}
+bye=correlation_filtering(mtcars,'mpg',0.875)#vamos a asiganr las variables a eliminar
+#se eliminan:
+bye
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**Tarea 8/ejercicio 3**
+
+Implementa el método FCB_filtering() en el archivo utils.R
+Implementa el método FCB_filtering() en el archivo utils.py
+Ocupa el data set de mtcars para probar tu método
+```{r}
+bye2=FCB_filtering(mtcars,.7,'mpg')#usamos umbral .7 paa definir alta correlación con el target y entre las
+#variables
+
+#las variables a conservar es:
+w<-select(mtcars,bye2)
+head(w)
+```
+
+
+
+
+
+
+
+
+
+
+**Tarea 8/ejercicio 4**
+
+Implementa el método forward_filtering() en utils.R
+Implementa el método forward_filtering() en utils.py
+Utiliza el data set de mtcars para probar tus métodos
+```{r}
+
+features<-colnames(mtcars)
+features<-features[features!='mpg']#nos quedamos con las variables independientes
+
+sal<-forward_filtering(mtcars,'mpg',features)#aplicamos el filter forward
+print(paste0('las variables elegidas son:',sal))
+
+#nuestro dataframe quedaria asi
+select(mtcars,sal,mpg)
+
+```
+

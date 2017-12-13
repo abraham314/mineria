@@ -1,0 +1,57 @@
+---
+title: "Examen2-parte1"
+author: "Abraham Nieto 51556"
+date: "6 de diciembre de 2017"
+output: html_document
+---
+```{r}
+source('utils.R')
+library(readr)
+adults<-read_csv('adult.csv',col_names = TRUE)# <- read_csv('https://www.dropbox.com/sh/ilk9kv509r10iks/AABL-VC0fQ-7hPGAz8xET-eWa?dl=0&preview=adult.csv',col_names = TRUE)
+
+head(adults)
+
+```
+
+Cambia los nombres de las variables para que los guiones - se convierta en guión bajo _ utilizando tu función clean_names llamándola desde el Rmd.
+```{r}
+
+adult_colname<-colnames(adults)
+colnames(adults)<-clean_names(adult_colname)
+
+head(adults)
+```
+
+Genera el GEDA de cada variable explicativa con la variable target income llamando a tu función eda desde el Rmd
+
+```{r}
+
+
+#graficamos todas las variables...
+geda(adults,15)#15 representa la variabe income que es el target
+
+```
+
+Genera un mosaicplot con las variables income, race y sex
+```{r}
+mosaicplot(income~ race + sex , data = adults,legend=TRUE,color=T)
+```
+
+Podemos ver en el mosaico que la mayoría de los individuos son hombres, que el segmento que tiene ingresos mayores a 50k está compuesto en su mayoría por hombres blancos.
+
+Genera un doubledecker con las variables income, workclass y sex
+
+```{r}
+doubledecker(income ~ workclass+sex, data = adults)
+#quitando el setor privado para mejor visualización
+```
+
+Lo que podemos observar es que  la mayoría de los individuos pertenecen al sector privado, lo interesante es ver que los hombres que una parte de los hombres que tienen sus propias empresas en su mayoría tienen ingresos mayores a 50k.
+
+pasamos los datos a feather
+
+```{r}
+library(feather)
+write_feather(x = adults, path='adults.feather')
+```
+

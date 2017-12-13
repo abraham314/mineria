@@ -1,0 +1,22 @@
+---
+title: "Examen 2"
+author: "Abraham Nieto 51556 - Ricardo Lastra 160167"
+date: "12 de Diciembre de 2017"
+output: html_document
+---
+
+&nbsp;
+
+###Parte 3
+
+&nbsp;
+
+#### ¿Qué es ciencia de datos?
+
+Es el conjunto de conocimientos obtenidos a través de la información que nos proporcionan los datos, la cual se adquiere de la limpieza, exploración, análisis, administración, desarrollo y uso de algoritmos de una manera controlada y sistematizada. Utiliza herramientas tecnológicas, matemáticas y de las ciencias sociales para la generación de productos de datos que contienen modelos, predicciones, visualizaciones inteligentes e innovadoras, su finalidad es obtener valor de la información.
+
+&nbsp;
+
+#### ¿Qué hace un científico de datos?
+
+Es la persona que usa los conocimientos de Estadística, Informática, Matemáticas y del Negocio innovando a través de la tecnología de las maquinas para la solución de problemas que antes de estas tecnologías no se podían resolver, además de entender claramente el contexto o el negocio de los problemas a resolver, partiendo de hipótesis o preguntas que se generan a tráves del desarrollo de la solución, además tiene la capacidad de transmitir el conocimiento de lo que hace en lenguaje claro y simple para gente no experta en el tema.

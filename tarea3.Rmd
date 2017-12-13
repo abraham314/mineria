@@ -1,0 +1,217 @@
+---
+title: "Tarea3 EDA"
+author: "Abraham Nieto 51556"
+date: "3 de octubre de 2017"
+output: html_document
+---
+
+```{r}
+library(ggplot2movies)
+library(dplyr)
+library(scales)
+library(plotly) 
+library(MASS)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+data("movies")
+ggplot(movies, aes(x=length)) + 
+    xlim(0, 180) +
+    geom_histogram(binwidth = 1) +
+    xlab("Duración de películas en minutos") + 
+    theme_bw()
+
+```
+
+Ejercicio 1
+a.¿Qué puedes decir de esta gráfica?
+Pareciera que dentro de la base existen 2 grupos de películas unas que pudieran ser cortometrajeas ya que duran menos de 50 minutos otro grupo que tiene una media de duración entre 90 y 100 mins. que paree más el tiempo 'común' de duración.
+
+b.¿Cómo la modificas para agregar más ticks?
+```{r}
+#Para agregar más ticks vamos a usar la opción scale_x_continuous dentro de ggplot:
+ggplot(movies%>%filter(length<180), aes(x=length)) + 
+    xlim(0, 180) +
+    geom_histogram(binwidth = 1) +
+    xlab("Duración de películas en minutos") + 
+    theme_bw() + scale_x_continuous(breaks = seq(0, 180, by = 10))
+  
+```
+
+c.Haz una gráfica que muestre que los picos de 7 y 90 minutos existían antes y después de 1980
+```{r}
+#haremos una variable dummie que identifique antes y despues de 1980
+moviesd<-movies%>%filter(length<180)%>%mutate(a80=ifelse(year>=1980,'despues_80','antes_80'))
+ggplot(moviesd, aes(x=length)) + 
+    xlim(0, 180) +
+    geom_histogram(binwidth = 1) +
+    xlab("Duración de películas en minutos") + 
+    theme_bw() + scale_x_continuous(breaks = seq(0, 180, by = 10))+facet_wrap(~a80)
+```
+
+d.Existe la varaible short que indica si una película es “corta”, ¿Qué gráfica puedes hacer para identificar el criterio que se ocupó para definir esta variable y cuáles están mal clasificadas?
+
+```{r}
+#observando la gráfica partida por antes y después de 1980 pareciera que el criterio de que una película sea corta es de 50 mins porque aparece en el brazo inferior  antes de 1980
+ggplotly(ggplot(data=moviesd)+geom_boxplot(aes(x=as.character(Short),y=length))+facet_wrap(~a80)) 
+
+#si lo vemos por distribuciones parecieran la mismas conclusiones
+ggplot(moviesd, aes(x=length)) + 
+    xlim(0, 180) +
+    geom_histogram(binwidth = 1) +
+    xlab("Duración de películas en minutos") + 
+    theme_bw() + scale_x_continuous(breaks = seq(0, 180, by = 10))+facet_wrap(~Short)
+#por tanto las peliculas mal clasificadas serían:
+#de las que se clasifican como largas y son cortas:
+mall<-movies%>%filter(Short==0 & length<50)
+mall$title
+
+#de las que se clasifican como cortas y son larga:
+mals<-movies%>%filter(Short==1 & length>=50)
+mals$title
+
+```
+
+**Ejercicio 2**
+```{r}
+ggplot(movies, aes(x=votes, y=rating)) +
+  geom_point() +
+  ylim(1,10) + scale_x_continuous(label=comma) + theme_bw()
+```
+
+a.Agrega alpha-blending ¿Qué pasa con los outliers? ¿Diferentes valores funcionan mejor?
+```{r}
+#usamos alpha y vemos que mientras mas pequena  los outliers se ven notan claros ya que estan fuera del grueso de los datos(lo mas negro)
+ggplot(movies, aes(x=votes, y=rating)) +
+  geom_point(alpha=.1) +
+  ylim(1,10) + scale_x_continuous(label=comma) + theme_bw()
+```
+
+b.¿Cómo se ve la gráfica si remueves las películas con menos de 100 votos?
+```{r}
+ggplot(movies%>%filter(votes>=100), aes(x=votes, y=rating)) +
+  geom_point(alpha=.1) +
+  ylim(1,10) + scale_x_continuous(label=comma) + theme_bw()
+  
+  #la diferenca es que con este filtro podemos ver que estas peliculas que quitamos tenian ratings altos 9 o 10 en esta grafica ya no hay estos ratings...
+```
+
+c.¿Cómo se ve la gráfica si remueves todas las películas que tienen un rating arriba de 9?
+```{r}
+ggplot(movies%>%filter(rating>=9), aes(x=votes, y=rating)) +
+  geom_point(alpha=.1) +
+  ylim(1,10) 
+  scale_x_continuous(label=comma) + 
+  theme_bw()
+  #parece que las peliculas con alto rating tienen pocos votos!
+```
+
+**Ejercicio 3**
+
+```{r}
+
+
+data("Cars93")
+
+ggplot(Cars93, aes(x=Weight, y=MPG.city)) +
+  geom_smooth(colour="green") +
+  ylim(0, 50) + 
+  scale_x_continuous(label=comma) +
+  geom_point() +
+  theme_bw() 
+```
+
+a.¿Cuál es el outlier de la izquierda?
+
+```{r}
+#haciendo una grafica de caja y brazos podemos ver que ese valor es 46...
+ggplotly(ggplot(data=Cars93,aes(x='var',y=MPG.city))+geom_boxplot())
+```
+
+b.En muchos países en lugar de medirse en millas por galón, se mide en litros por 100 km. ¿Qué pasa si graficas MPG.city contra Horsepower? ¿Existe una relación lineal? ¿Cuáles son los outliers?
+
+```{r}
+#Parece lineal negativa pero no ajusta del todo y su coeficiente de correlacion es de -.67, 
+ggplot(data=Cars93,aes(x=MPG.city*0.0042514285,y=Horsepower))+geom_point()+geom_smooth(method='lm',formula=y~x)
+
+#coeficiente de correlacion..
+cor(Cars93$MPG.city,Cars93$Horsepower)
+
+```
+
+Los outliers son valores de Horsepower arriba de 255...
+
+```{r}
+ggplotly(ggplot(data=Cars93,aes(x='var',y=Horsepower))+geom_boxplot())
+```
+
+Los outliers son valores de MPG.city en litros por 100km son valores arriba de 0.14
+```{r}
+ggplotly(ggplot(data=Cars93,aes(x='var',y=MPG.city*0.0042514285))+geom_boxplot())
+```
+
+También se podemos hacer una matriz de scatterplots -**splom** (como lo hicimos con los histogramas :)), para ello ocupamos el método `ggpairs` de la librería `GGally` en el dataset de precios de vivienda ade Boston.
+
+```{r}
+library(GGally)
+
+
+dplyr::select(Boston, -rad, -chas) %>% 
+ggpairs(title="Boston dataset", diag=list(continuous="density", axisLabels='none'))
+  
+```
+
+**Ejercicio 4**
+a.¿Cuáles están positivamente correlacionados con medv?
+zn.-.36, rm.-.695,dis.-.25,black-.333
+
+b.La variable crim -tasa de crímenes per cápita- tiene scatterplots con forma inusual, donde los valores altos de crim solo ocurren para un valor de la otra variable ¿Qué explicación le puedes dar?
+
+```{r}
+new<-dplyr::select(Boston, crim,zn,indus,age,dis,tax,rm,medv)
+ggplot(data=new,aes(x=crim,y=zn))+geom_point()
+ggplot(data=new,aes(x=crim,y=indus))+geom_point()
+
+```
+
+De acuerdo con estas gráficas lo que podemos decir es que las variables condicionan los casos en donde existen crímenes, por ejemplo el caso zn los crímenes sólo se dan donde zn es cero y para el caso de indus sólo se dan para valores cerca de 20 entonces pareciera que los datos de crimen sólo existieran para estos valores o sólo se censaron estos.
+
+c.Hay varias formas en los scatterplots, escoge 5 y explica cómo las interpretas
+
+```{r}
+new<-dplyr::select(Boston,crim,zn,indus,age,dis,tax,rm,medv)
+
+#crim vs. zn como habíamos explicado parece que sólo para u valor varían las tasas de crímenes el resto iene tasa 0 de crímenes.
+ggplot(data=new,aes(x=crim,y=zn))+geom_point()
+
+#indus vs. age exise una correlación positiva marcada a mayor indus( proportion of non-retail business acres per town.) mayor age(proportion of owner-occupied units built prior to 1940) pero con muchos ajustes no es tan clara esta relación
+ggplot(data=new,aes(x=indus,y=age))+geom_point()
+
+#dis vs. tax parece que tax tiene mayor variabilidad para tax menor que 500 pdieran ser los tax mayores a este valor outliers.
+ggplot(data=new,aes(x=dis,y=tax))+geom_point()
+
+#rm vs. medv relación claramente positiva a mayor average number of rooms per dwelling mayor Median value of owner-occupied homes in $1000's
+ggplot(data=new,aes(x=rm,y=medv))+geom_point()
+
+#rm vs. age variables poco relacionadas parecieran ser indpendientes o tener poca injerencia una en la otra tiene sentido que el numero de habitaciones por vivienda no se relacione con la proporcion de unidades ocupadas por el dueño antes de 1940.
+ggplot(data=new,aes(x=rm,y=age))+geom_point()
+```
+
+**Ejercicio 5**
+a.Usando el dataset Boston realiza un pcp, intenta resaltar las características que haz observado en los ejercicios anteriores. Piensa cómo le hiciste…
+
+```{r}
+#veamos la distribución de las tasas de crímenes en boston..
+summary(Boston$crim)
+#observamos que más del 50% de ls datos tiene  tasasmenores al 1% por tanto vamos a definir las tasas de críemenes como mucho>1% y poco lo contrario...
+newb<-Boston%>%mutate(cr=ifelse(crim<1,'poco','mucho'))
+
+#hacemos el pcp con las variables del ejercicio anterior...
+ggparcoord(newb, columns=c(2:3,6:8,10,14), groupColumn = "cr") 
+```
+
+Podemos corroborar en 1 sola gráfica que los casos donde hay mucho crimen s donde los valores para rn son bajos, al igual que para medv,dis,zn y para indus y ta e crimen es mayor con valores altos...
+
+
+

@@ -1,0 +1,106 @@
+---
+title: "tarea_data_maturity"
+author: "Abraham Nieto 51556"
+date: "16 de septiembre de 2017"
+output: html_document
+---
+**objetivo y metas :**
+Crear un modelo para cada AGEB con el fin de predecir si existe una sobre o sub demanda de bicicletas o lugares para devolverlas en cada estación lo primero sería hacer un cluster de tendencias para las estaciones e identificar aquellas que esten sobrepasadas en capacidad y posterior estimar el número de lugares óptimos, esto debe hacerse tomando en cuenta dias entre semana, fin de semana y festivos o vacaciones, el kpi de éxito debe ser satisfacer la demanda bicicletas y lugares disponibles para entregar en un 85% por AGEB. es necesario construir un DWH para que se se les pueda crear un dashboard para reportar las predicciones, es necesario hacer una transferencia de conocimiento para que la gente de ecobici pueda monitorear e incluso analizar si existen circunstancias nuevas que pudieran afectar el modelo.
+
+**Acciones:**
+
+Entendimiento de negocio.- a través del director de análisis de datos de Ecobici generaremos juntas de entendimiento para conocer la problemática así como el flujo de los datos con los que se cuenta para poder definir el kpi de éxito y el alcance del proyecto y hacer un road map de la planificación del trabajo a desarrollar.
+Entendimiento de los datos.- Contamos con los  siguientes datos: género del usuario, edad del usuario, id de bici, estación de retiro, fecha de retiro, hora de retiro, estación de arribo, fecha de arribo, hora de arribo, desde septiembre del 2010 hasta marzo 2017, lo primero es revisar con los usuarios y/o la gente TI la calidad de los datos para determinar si existe algún tipo de error(ejemplo: tiempos vienen con retraso?) o si existen datos faltantes y cómo debemos interpretarlos o limpiarlos así.
+
+Una vez solucionado ese tema, al revisar los datos con los que contamos, existen 3 variables que nos pueden ayudar a mapear nuestro objetivo que son la estación y la fecha y hora de retiro, con estos podemos darnos cuenta en que rangos de horarios existe el mayor % de ocupación de las bicis, en particular por AGEB, y además contando con datos históricos desde el 2010 podemos ver también estos  horarios por temporalidad para poder pronosticar.
+
+Dado que Ecobici no tiene infraestructura ni skills para la explotación de sus datos se propone crear un reporte a través de un dashboard para que puedan ver las ocupaciones de las distintas estaciones así como las predicciones que llevarán a cabo, para ello es necesario construir un cubo de información que alimente estos reportes, pero para esto no existe un DWH que lo alimente por tanto se debe construir a partir de los archivos csv y las bases de datos relacionales con las que se cuenta, esta tarea puede ser paralela a la construcción del modelo de predicción ya que este se puede armar a partir de sus bases relacionales(data lake).
+
+**Más Información.-** Con más información sería importante revisar si existe algún campo dentro de nuestros archivos ques e pudiera ligar con información por ejemplo externa o pública  para después integrar está info en un DWH que pudiera contener bases integradas con los campos que se cuentan más columnas de la información nueva. 
+
+**Fuentes de datos:** 
+
+Como ya se mencionó existen las bases de datos de los archivos csv que se registran en tiempo real
+se requiere recolectar las bases históricas que posee ecobici de sus bases relacionales y quizás bases externas o de terceros que nos pudieran ayudar además de sus s¿diccionarios de datos.
+
+Datos de terceros.- dado que ecobici cuenta con diccionario de datos uno de los datos importantes es saber en que AGEB se encuentran las estaciones, para poder utilizar información de la población que vive por la zona esta info se puede obtener del INEGI para poder crear un dato que muestre aproximadamente el % de población de la zona que usa la ecobici y también de esta forma poder estimar un crecimiento potencial de usuarios, otro dato importante podría ser la información meteorológica, esto con el fin de saber que comportamientos de uso menores o mayores se pueden explicar por el clima(ejemplo: cuando llueve)
+A través del director de daros de ecobici  vamos a hacer un meeting con la gente de TI para que nos expliquen como llegan los datos a los usuarios, y por otra parte buscar a sus homólogos en el sistema meteorológico nacional para proponer un intercambio de información para obtener sus datos en este proyecto.
+
+**Modelos**
+
+Después de explorar los datos, vamos primero a definir una variable , como medir la demanda vamos a sumarizar nuestros datos por Estación, por día y rangos de hora para crear una variable que muestre el % de bicis usadas, definiremos un umbral para marcar aquellas estaciones tienen deficiencia o falta de stock, con este mismo dato podemos obtener el análogo para la disponibilidad de entrega de bicis, una vez hecho esto podemos ver las tendencias por hora y dia de la semana y entonces crear clusters para ver cuales son las tendencias de demanda que se parecen y tener el cluster de alta demanda, podemos usar un k-means  por ejemplo.
+
+**2.-Data Maturity Framework Questionnaire**
+
+**Definición del problema:** 
+
+en cuanto al tema de la problemática que ecobici necesita resolver es AVANZADO ya que tiene muy claro la problemática de demanda que necesita resolver, en el tema de cuanto necesita mover la aguja es BASICO ya que no saben como utilizarían la info si supieran donde tuvieran el problema de sobredemanda.
+
+En cuanto al tema de que intervenciones tiene disponibles para resolver el problema está REZAGADO porque no tienen una manera de resolvero o hacerlo hoy día.
+
+Impacto.- en este rubro están en nivel BÁSICO ya que se sabeque el éxito de este proyecto afectará directamente el nivel de servicio para los usuarios, pero no es claroa futuro que otros beneficios se puedan encontrar.
+
+Datos disponibles.-en este rubro podemos decir que están en un nivel BÁSICO, ya que con los datos con los que se cuentan  se puede mapear en la problemática por tanto son relevantes pero insuficientes.
+
+Campos disponibles.- en este rubro ecobici tiene un nivel BÁSICO ya que los campos con los que cuenta se puede deducir día de la semana mes y rangos de hora de demanda, pero falta información climatológica para entender ciertos días.
+
+Población Objetivo: Nivel REZAGADO non es claro que exstan recursos para solucionar el problema en todas las estaciones.
+
+**DATA GOVERNANCE**
+
+Ownership.-este nivel es AVANZADO ya que el área de análisis de datos tiene acceso a las bases de datos relacionales, aunqu no se menciona que sean los dueños, perose infiere que tienen reación con estos.
+
+Politica de seguridad.- LIDER, ya que cmple la ley federal de protección de datos.
+
+**IMPLEMENTACIÓN Y MANTENIMIENTO**
+
+Implementación técnica.- Nivel REZAGADO ya que o cuenta con gente con el perfíl que pueda desarrollar una solución ni explotación de los datos.
+
+Infraestructura de Datos: AVANZADO ya que cuenta con archivos csv que alimentan en real time las bases de datos relacionales que tienen.
+
+Mantenimiento.- REZAGADO ya que no cuenta con herramientas para dar seguimiento a la solución que se necesitaría.
+
+**PREPARACIÓN DE DATOS**
+
+Accesbilidad.- AVANZADO ya que la información se genera enarchivos csv.
+
+Storage.-LIDER ya que los archivos se almacenan en bases de datos relacionales.
+
+Integración.- BASICO los no cuentan con un DHW.
+
+Relevancia y suficiencia.-BASICO los datos con los que se cuentan son releventes pero no suficientes por ejemplo no se puede saber como afecta el clima(fuentes externas).
+
+Calidad.-REZAGADO no cuanta con un proceso de limpieaza de los datos
+
+Collection frequency.- AVANZADO, la info se almacena en real time.
+
+Granularidad.-LIDER ya que se cuenta con la info a nivel viaje de cada bicicleta.
+
+Historico.- AVANZADO ya que se cuenta con información de casi 6 años a nivel fecha y hora.
+
+Privacidad.-AVANZADO,cumple con la ley de protección de datos, pero no tienen un software para administración de los proyectos.
+
+Documentación.-BASICO ya que sólo cuentan con un diccionario de datos.
+
+**PREPARACIÓN ORGANIZACIONAL**
+
+Staff buy in.-BASICO, pocos saben que hacer con los datos dentro de ecobici.
+
+Data Collector Buy In.-BASICO, la información se entrega porque se pide pero no venmás allá.
+
+Leadership Buy In.-BASICO, los jefes saben que necesitan usar los datos para estimar la demanda pero no saben como llegar a eso por eso cme contrataron.
+
+Recursos.-BASICO, la gente entiende el valor de los dartos pero carece de los skills para explotarlos.
+
+Política de uso de datos.-BASICO, por la ley de protección sabe ecobici qe no puede compartir datos
+externamente pero no sabe como manejarlo de forma interna por ejemplo no tienen un proceso de salida de información interna.
+
+Intervenor Buy In.-REZAGADO, no cuenta con convenios de intercambio de información (terceros).
+
+Funder Buy In.-LIDER, los jefes quieren tomar decisiones basadas en datos y están dispuestos a buscar soluciones financiando los desarrollos analíticos  y de infraestructura que necesitan por eso nos contrataron.
+
+Podemos decir en general que Ecobici está en un nivel básico ya que cuenta con datos relevantes pero no suficientes, tiene falta de personal con conocimiento analítico para explotar los datos y no cuenta con informes de seguimiento para toma de decisiones.
+
+
+
+

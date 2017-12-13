@@ -1,0 +1,57 @@
+---
+title: "Ejercicio 5 tarea"
+author: "Abraham Nieto 51556"
+date: "28 de octubre de 2017"
+output: html_document
+---
+
+llamamos toolset,utils,metadata,load y prepare
+
+```{r}
+source('toolset.R')
+source('utils.R')
+source('metadata.R')
+source('00-load.R')
+source('01-prepare.R')
+
+```
+
+Ahora usamos summary para verla estructura de los datos...
+
+```{r}
+str(algas)
+summary(algas)
+```
+
+Tenemos que algas tiene 200 observaciones y 18 varables de las cuales 3 son de tipo varchar y el resto numericas...
+
+llamamos 02-clean y expllicamos todo lo que se hizo...
+
+```{r}
+source('02-clean.R')
+```
+
+Explicacion del proceso  en la grafica de missings podemos observar cuales son las variables que tienen NA's de forma grafica en este caso observamos que estas son chla y cl en su mayoria junto con po4,opo4,nh4,no3,min_o2y max_ph en menor cantidad.
+
+Luego, podemos observar la matriz de correlaciones de valores NA's donde de esta grafica podemos interpretar que los variables no3,nh4 y opo4 son missings al parejo es decir  si una de ellas es missing las otras 2 tambien lo seran. tambien pasa un eefecto similar con las variables cl y chla.
+
+Después si observamos la primera gráfica de variables podemos ver en la diagonal para las variables numéricaslas distribuciones de estas es importante este punto dad que las imputaciones de valores missing se hicieron basadas en las distribuciones de variables arriba mencionadas de a siguiente forma con su justificación:
+1.-imputar max_ph con la mediana porque su distribucion es quasi normal..
+2.-imputamos po4 haciendo una regresión lineal con opo4 porque su relacion es casi lineal(ver gráfica).
+3.-imputamos cl, chla y min_o2 con 3-vecinos mas cercanos dado que sus distribuciones estan sesgadas.
+
+y finalmente si revisamos la el último ggpairs podemos ver las variables se transformaron 
+dado que max_ph se distribuye casi normal solo la vamos a estandarizar, min_o2 no tienen tanto sesgo
+tambien la estadirizaremos
+
+al resto de las variables numericas las transformaremos en logaritmo+1 dado que solo tienen valores positivos y estan sesgadas  esta funcion abre valores pequeños y agrupa valores grandes..
+esto último se nota en último ggpair.
+
+
+Finalmente mostramos el GEDA de la interacción entre variables...
+
+```{r}
+source('03-eda.R')
+```
+
+Con la manipulación de datos podemos ver que algunos outliers desaparecieron aunque la mayoría de los restantes aparecen en los boxplots del GEDA.

@@ -1,0 +1,37 @@
+---
+title: "tarea 4"
+author: "Abraham Nieto 51556"
+date: "16 de octubre de 2017"
+output: html_document
+---
+
+```{r}
+source('utils.R')
+source('metadata.R')
+source('00-load.R')
+source('01-prepare.R')
+library(dplyr)
+
+
+```
+
+```{r}
+#funcion para contrastar variables independientes vs. la dependiente....
+gc2(german_data,13)
+#graficamos todas las variables...
+for(j in 1:20){
+  print(gc2(german_data,j))
+}
+```
+hay algo raro con los prestamos los montos parecen ser que se les otorga mas credito a los malos pagadores que a los buenos, con una funcion de interaccion de todas las variables dependientes versus la dependendiente encontramos esto...(grafico de credit amount)
+
+
+
+¿Cuál crees que debería ser la distribución del resultado del préstamo Good_Loan respecto a Credit history?
+
+```{r}
+ggplot(data=german_data)+geom_bar(aes(x=`Credit history`,fill=good_loan))
+```
+
+
+lo que podemos ver de entrada es que por ejkemplo la categoria de "existing credits paid back dully till now" es decir los que pagan a tiempo sonlos que tienen mas mora! es contradictorio deberia de tener menos que el resto, y luego si vemos "delay in paying off in the past" vemos que la proporcion de morosos es baja para tal categoria ya que se espera que si se an atrasado en otros mesese pues tenga relacion con el actual y eso no se ve, lugo "critical account.." como puede ser critica y tener la mayoria de sus pestamos como buenos?  se deberia distribuir con los casos contrarios a los que vemos es decir las etiquetas que muestran mal historial crediticio deberian tener mas proporcion de malos pagadores....

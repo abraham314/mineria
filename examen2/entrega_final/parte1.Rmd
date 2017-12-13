@@ -1,0 +1,76 @@
+---
+title: "Examen 2"
+author: "Abraham Nieto 51556 - Ricardo Lastra 160167"
+date: "12 de Diciembre de 2017"
+output: html_document
+---
+
+&nbsp;
+
+###Parte 1
+
+```{r echo=T, warning=F, error=F, message=F}
+source('utils.R')
+library(readr)
+adults<-read_csv('adult.csv',col_names = TRUE)
+
+head(adults)
+```
+
+&nbsp;
+
+
++ Cambia los nombres de las variables para que los guiones - se convierta en guión bajo _ utilizando tu función clean_names llamándola desde el Rmd.
+
+```{r echo=T, warning=F, error=F, message=F}
+
+adult_colname<-colnames(adults)
+colnames(adults)<-clean_names(adult_colname)
+
+head(adults)
+```
+
+&nbsp;
+
++ Genera el GEDA de cada variable explicativa con la variable target income llamando a tu función eda desde el Rmd
+
+```{r echo=T, warning=F, error=F, message=F}
+#graficamos todas las variables...
+geda(adults,15)#15 representa la variabe income que es el target
+```
+
+Despúes de usar la funcion GEDA, observamos la relación de la variable target con la edad, se aprecia que a mayor edad se tienen mayores ingresos, tambien podemos ver que el sector privado es el que otorga los mayores salarios. En la relación con el nivel educativo, observamos que las personas que no tienen titulo y dejan los estudios en algun grado, son los que casi no superan la barrera de 50k. En un par de graficas observamos que los hombres son mayoria y que cuando estan casados obtienen en mayor proporcion ingresos mayores a 50k. Tambien observamos que los que mas tiempo a la semana trabajan son los que mayormente tienen ingresos superiores a los 50k.
+
+&nbsp;
+
++ Genera un mosaicplot con las variables income, race y sex
+
+```{r echo=T, warning=F, error=F, message=F}
+mosaicplot(income~ race + sex , data = adults,legend=TRUE,color=T)
+```
+
+&nbsp;
+
+Podemos ver en el mosaico que la mayoría de los individuos son hombres blancos, que el segmento que tiene ingresos mayores a 50k es mas pequeño y menos proporcinal de forma general para las mujeres.
+
+&nbsp;
+
++ Genera un doubledecker con las variables income, workclass y sex
+
+```{r echo=T, warning=F, error=F, message=F}
+doubledecker(income ~ workclass+sex, data = adults)#quitando el sector privado para mejor visualización
+```
+
+&nbsp;
+
+Lo que podemos observar es que  la mayoría de los individuos pertenecen al sector privado, lo interesante es ver que los hombres que tienen sus propias empresas en su mayoría tienen ingresos mayores a 50k. Tambien se observa que las mujeres del sector privado son las que en su mayoria tienen ingresos por debajo de los 50k.
+
+&nbsp;
+
+Pasamos los datos a feather para input de modelo en Python.
+
+```{r echo=T, warning=F, error=F, message=F}
+library(feather)
+write_feather(x = adults, path='adults.feather')
+```
+
